@@ -77,7 +77,6 @@ CREATE TABLE TonKho (
     FOREIGN KEY (MaKho) REFERENCES KHO(MaKho)
 );
 
-
 -- TẠO BẢNG NHÂN VIÊN VÀ SỐ ĐIỆN THOẠI
 CREATE TABLE NhanVien_SDT (
     MaNV CHAR(10),
@@ -347,4 +346,152 @@ INSERT INTO ChiTietPhieuX (SoPhieuX, MaVT, SoLuongX, DonGiaX) VALUES
 ('PX008', 'VT008', 40, 405000),
 ('PX009', 'VT009', 45, 455000),
 ('PX010', 'VT010', 50, 505000);
+
+
+--TẠO VIEW
+
+-- Tìm các nhân viên lam cho kho số 7-Lê Hoàng Phong-12/07/2024
+CREATE VIEW vw_Timnhanvienkho7 AS
+SELECT [MaNV],[TenNV],[MaKho]
+FROM [dbo].[NhanVien]
+WHERE [MaKho] = 'K007'     
+
+SELECT * FROM vw_Timnhanvienkho7
+
+-- Tìm các nhân viên có mức lương trên 20000000-Lê Hoàng Phong- 12/07/2024
+CREATE VIEW vw_nhanvienluongtren20000000 AS
+SELECT NV.TenNV,L.TenCV,FLOOR((L.LuongCB*L.HSL)) AS Luong
+FROM [dbo].[Luong] L JOIN [dbo].[NhanVien] NV ON
+     L.MaCV=NV.MaCV
+
+SELECT * FROM vw_nhanvienluongtren20000000
+
+-- Cho biết các vật tư đã bán trong năm 2024-Lê Hoàng Phong- 15/07/2024
+CREATE VIEW vw_cacvattudabannam2024 AS
+SELECT VT.MaVT,VT.TenVT
+FROM [dbo].[PhieuXuat] PX,[dbo].[ChiTietPhieuX] CTPX,[dbo].[VatTu] VT
+WHERE PX.SoPhieuX=CTPX.SoPhieuX AND CTPX.MaVT=VT.MaVT AND
+	  YEAR(PX.NgayXuat) = 2024
+
+SELECT * FROM vw_cacvattudabannam2024
+
+--Cho biết thông tin của người nhận phiếu xuất PX008-Lê Hoàng Phong- 15/07/2024
+
+CREATE VIEW vw_thongtinnguoinhan AS
+SELECT NN.MaNN,NN.TenNN,NN.SDT
+FROM [dbo].[PhieuXuat] PX JOIN [dbo].[NguoiNhan] NN ON
+	 PX.MaNN=NN.MaNN
+WHERE PX.SoPhieuX='PX008'
+
+SELECT * FROM vw_thongtinnguoinhan
+
+-- hiển thị tổng số lượng và giá trị nhập kho theo từng nhà cung cấp trong mỗi tháng-Lê Hoàng Phong- 15/07/2024
+
+CREATE VIEW vw_soluongnhapkho AS
+SELECT NCC.MaNCC,NCC.TenNCC,
+	   SUM(CTPN.SoLuongN) AS Tongsoluong,
+	   MONTH(PN.NgayNhap) AS Thang 
+FROM [dbo].[NhaCungCap] NCC 
+	 JOIN [dbo].[NguoiGiao] NG ON NCC.MaNCC= NG.MaNCC
+	 JOIN [dbo].[PhieuNhap] PN ON PN.MaNG = NG.MaNG
+	 JOIN [dbo].[ChiTietPhieuN] CTPN ON CTPN.SoPhieuN=PN.SoPhieuN
+GROUP BY NCC.MaNCC,NCC.TenNCC,MONTH(PN.NgayNhap) 
+
+SELECT * FROM vw_soluongnhapkho
+
+-- hiển thị tồn kho hiện tại của mỗi vật tư trong từng kho-Lê Hoàng Phong-15/07/2024
+
+ALTER VIEW vw_Tonkhovattu AS
+SELECT VT.MaVT,VT.TenVT,SUM(TK.SoLuongTon) AS Ton_Kho,TK.MaKho
+FROM [dbo].[TonKho] TK JOIN [dbo].[VatTu] VT ON
+	 TK.MaVT=VT.MaVT
+GROUP BY VT.MaVT,VT.TenVT,TK.MaKho
+
+SELECT * FROM vw_Tonkhovattu
+
+--hiển thị chi tiết các phiếu nhập và xuất của mỗi nhân viên trong tháng-Lê Hoàng Phong-15/07/2024
+
+CREATE VIEW vw_Chitietnhapxuatnhanvien AS
+SELECT  NV.MaNV,
+		NV.TenNV,
+		'Nhap' AS LoaiPhieu,
+		PN.SoPhieuN AS SoPhieu,
+		PN.NgayNhap AS Ngay,
+		NG.TenNG AS TenDoiTac
+FROM   NhanVien NV
+		JOIN PhieuNhap PN ON NV.MaNV = PN.MaNV
+		JOIN NguoiGiao NG ON PN.MaNG = NG.MaNG
+UNION ALL
+SELECT  NV.MaNV,
+		NV.TenNV,
+		'Xuat' AS LoaiPhieu,
+		PX.SoPhieuX AS SoPhieu,
+		PX.NgayXuat AS Ngay,
+		NN.TenNN AS TenDoiTac
+FROM  NhanVien NV
+	  JOIN PhieuXuat PX ON NV.MaNV = PX.MaNV
+      JOIN NguoiNhan NN ON PX.MaNN = NN.MaNN;
+
+SELECT * FROM vw_Chitietnhapxuatnhanvien
+
+-- hiển thị danh sách vật tư sắp hết hàng (số lượng tồn kho dưới ngưỡng 10 vật tư)-Lê Hoàng Phong-15/07/2024
+
+CREATE VIEW vw_VatTuSapHetHang AS
+SELECT 
+    VT.MaVT,
+    VT.TenVT,
+    VT.DonViTinh,
+	TK.MaKho,
+    SUM(TK.SoLuongTon) AS TongSoLuongTon
+FROM VatTu VT JOIN TonKho TK ON VT.MaVT = TK.MaVT
+GROUP BY VT.MaVT, VT.TenVT,TK.MaKho, VT.DonViTinh
+HAVING SUM(TK.SoLuongTon) < 10; 
+
+SELECT * FROM vw_VatTuSapHetHang
+
+--hiển thị danh sách các kho có số lượng tồn kho lớn nhất cho mỗi loại vật tư-Lê Hoàng Phong-15/07/2024
+
+CREATE VIEW vw_KhoCoLuongTonLonNhat AS
+SELECT 
+    TK.MaVT,
+    VT.TenVT,
+    TK.MaKho,
+    K.TenKho,
+    TK.SoLuongTon
+FROM 
+    TonKho TK
+    JOIN VatTu VT ON TK.MaVT = VT.MaVT
+    JOIN KHO K ON TK.MaKho = K.MaKho
+WHERE 
+    TK.SoLuongTon = (
+        SELECT 
+            MAX(TK1.SoLuongTon)
+        FROM 
+            TonKho TK1
+        WHERE 
+            TK1.MaVT = TK.MaVT
+    );
+
+SELECT * FROM vw_KhoCoLuongTonLonNhat
+
+--hiển thị giá trung bình nhập và xuất của từng loại vật tư theo năm-Lê Hoàng Phong-15/07/2024
+CREATE VIEW vw_GiaTrungBinhVatTuTheoNam AS
+SELECT 
+    YEAR(PN.NgayNhap) AS Nam,
+    VT.MaVT,
+    VT.TenVT,
+    AVG(CTPN.DonGiaN) AS GiaTrungBinhNhap,
+    AVG(CTPX.DonGiaX) AS GiaTrungBinhXuat
+FROM 
+    VatTu VT
+    LEFT JOIN ChiTietPhieuN CTPN ON VT.MaVT = CTPN.MaVT
+    LEFT JOIN PhieuNhap PN ON CTPN.SoPhieuN = PN.SoPhieuN
+    LEFT JOIN ChiTietPhieuX CTPX ON VT.MaVT = CTPX.MaVT
+    LEFT JOIN PhieuXuat PX ON CTPX.SoPhieuX = PX.SoPhieuX
+WHERE 
+    YEAR(PN.NgayNhap) = YEAR(PX.NgayXuat)
+GROUP BY 
+    YEAR(PN.NgayNhap), VT.MaVT, VT.TenVT;
+
+SELECT * FROM vw_GiaTrungBinhVatTuTheoNam
 
