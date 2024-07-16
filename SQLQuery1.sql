@@ -495,3 +495,522 @@ GROUP BY
 
 SELECT * FROM vw_GiaTrungBinhVatTuTheoNam
 
+
+
+
+
+	
+-- PHần STORED PROCEDURE
+--Bảng LoaiVatTu 
+--Thêm
+CREATE PROCEDURE ThemLoaiVatTu
+    @MaLoaiVT CHAR(10),
+    @TenLoaiVT NVARCHAR(50)
+AS
+BEGIN
+    INSERT INTO LoaiVatTu ([MaLoaiVT],[LoaiVT])
+    VALUES (@MaLoaiVT, @TenLoaiVT)
+END
+
+EXEC ThemLoaiVatTu 'ngoaithatcc' , N'Ngoại thất CC' 
+
+--Sửa 
+CREATE PROCEDURE SuaLoaiVatTu
+    @MaLoaiVT CHAR(10),
+    @TenLoaiVT NVARCHAR(50),
+    @MoTa NVARCHAR(50)
+AS
+BEGIN
+    UPDATE [dbo].[LoaiVatTu]
+    SET [MaLoaiVT] = @MaLoaiVT ,
+        [LoaiVT] = @TenLoaiVT ,
+        [Mota] = @MoTa 
+    WHERE [MaLoaiVT] = @MaLoaiVT 
+END
+
+EXEC SuaLoaiVatTu 'ngoaithat' , N'Ngoại Thất' , N'Mô tả ngoại thất '
+
+--Xóa 
+CREATE PROCEDURE XoaLoaiVatTu
+    @MaLoaiVT CHAR(10)
+AS
+BEGIN
+    DELETE 
+    FROM LoaiVatTu 
+    WHERE MaLoaiVT = @MaLoaiVT
+END
+
+EXEC XoaLoaiVatTu 'ngoaithatcc'
+
+-- Lấy thông tin 
+CREATE PROCEDURE LayThongTinLoaiVatTu 
+    @MaLoaiVT CHAR(10) 
+AS 
+BEGIN 
+    SELECT * 
+    FROM [dbo].[LoaiVatTu]
+    WHERE [MaLoaiVT] = @MaLoaiVT 
+END 
+
+EXEC LayThongTinLoaiVatTu 'ngoaithat'
+
+-- Bảng VatTu 
+--Thêm VatTu
+CREATE PROCEDURE ThemVatTu
+    @MaVT CHAR(10),
+    @TenVT NVARCHAR(50),
+    @DonViTinh NVARCHAR(12),
+    @MaLoaiVT CHAR(10)
+AS
+BEGIN
+    INSERT INTO VatTu (MaVT, TenVT, DonViTinh, MaLoaiVT)
+    VALUES (@MaVT, @TenVT, @DonViTinh, @MaLoaiVT);
+END
+
+EXEC ThemVatTu 'VT006' , 'Ống nhựa' , 'm' ,
+
+--Sửa VatTu
+CREATE PROCEDURE SuaVatTu
+    @MaVT CHAR(10),
+    @TenVT NVARCHAR(50),
+    @DonViTinh NVARCHAR(12),
+    @SoLuong INT ,
+    @MaLoaiVT CHAR(10)
+AS
+BEGIN
+    UPDATE VatTu
+    SET TenVT = @TenVT, DonViTinh = @DonViTinh , SoLuong = @SoLuong  , MaLoaiVT = @MaLoaiVT
+    WHERE MaVT = @MaVT;
+END
+
+
+--Xóa VatTu
+CREATE PROCEDURE XoaVatTu
+    @MaVT CHAR(10)
+AS
+BEGIN
+    DELETE 
+    FROM VatTu
+    WHERE MaVT = @MaVT;
+END
+
+-- Lấy thông tin
+CREATE PROCEDURE LayTTVatTu
+    @MaVT CHAR(10)
+AS
+BEGIN
+    SELECT * FROM VatTu
+    WHERE MaVT = @MaVT;
+END
+
+
+-- Bảng lương 
+--Thêm 
+CREATE PROCEDURE ThemLuong
+    @MaCV CHAR(10),
+    @TenCV NVARCHAR(50),
+    @HSL DECIMAL,
+    @LuongCB FLOAT = 5000000
+AS
+BEGIN
+    INSERT INTO Luong (MaCV, TenCV, HSL, LuongCB)
+    VALUES (@MaCV, @TenCV, @HSL, @LuongCB);
+END
+
+--Sửa 
+CREATE PROCEDURE SuaLuong
+    @MaCV CHAR(10),
+    @TenCV NVARCHAR(50),
+    @HSL DECIMAL,
+    @LuongCB FLOAT = 5000000
+AS
+BEGIN
+    UPDATE Luong
+    SET TenCV = @TenCV, HSL = @HSL, LuongCB = @LuongCB
+    WHERE MaCV = @MaCV;
+END
+
+--Xóa
+CREATE PROCEDURE XoaLuong
+    @MaCV CHAR(10)
+AS
+BEGIN 
+    DELETE 
+    FROM [dbo].[Luong]
+    WHERE [MaCV] = @MaCV 
+END
+
+--Lấy thông tin
+CREATE PROCEDURE LayThongTinLuong
+    @MaCV CHAR(10)
+AS
+BEGIN
+    SELECT *
+    FROM [dbo].[Luong]
+    WHERE MaCV = @MaCV 
+END
+
+
+--Bảng NhanVien 
+--Thêm 
+CREATE PROCEDURE ThemNhanVien
+    @MaNV CHAR(10),
+    @TenNV NVARCHAR(50),
+    @GioiTinh CHAR(3),
+    @DiaChi NVARCHAR(70),
+    @NgayVaoLam DATE,
+    @MaCV CHAR(10),
+    @MaKho CHAR(10)
+AS
+BEGIN
+    INSERT INTO NhanVien (MaNV, TenNV, GioiTinh, DiaChi, NgayVaoLam, MaCV ,MaKho)
+    VALUES (@MaNV, @TenNV, @GioiTinh, @DiaChi, @NgayVaoLam, @MaCV,@MaKho)
+END
+
+--Sửa
+CREATE PROCEDURE SuaNhanVien
+    @MaNV CHAR(10),
+    @TenNV NVARCHAR(50),
+    @GioiTinh CHAR(3),
+    @DiaChi NVARCHAR(70),
+    @NgayVaoLam DATE,
+    @MaCV CHAR(10),
+    @MaKho CHAR(10)
+AS
+BEGIN 
+    UPDATE [dbo].[NhanVien]
+    SET [TenNV] =  @TenNV , [GioiTinh] = @GioiTinh , [DiaChi] = @DiaChi , [Ngayvaolam] = @NgayVaoLam , [MaCV] = @MaCV , [MaKho] = @MaKho 
+    WHERE [MaNV] =  @MaNV 
+END
+
+--Xóa
+CREATE PROCEDURE XoaNhanVien
+    @MaNV CHAR(10)
+AS
+BEGIN
+    DELETE FROM NhanVien
+    WHERE MaNV = @MaNV
+END
+
+--Lấy thông tin 
+CREATE PROCEDURE LayTTNhanVien 
+    @MaNV CHAR(10)
+AS
+BEGIN 
+    SELECT *
+    FROM NhanVien
+    WHERE MaNV = @MaNV
+END
+
+
+--Bảng NhanVien_SDT
+--Thêm 
+CREATE PROCEDURE ThemNV_SDT
+    @MaNV CHAR(10),
+    @SDT Char(15)
+AS
+BEGIN 
+    INSERT INTO [dbo].[NhanVien_SDT] ([MaNV],[SDT])
+    VALUES(@MaNV,@SDT)
+END
+
+--Sửa
+CREATE PROCEDURE SuaNV_SDT
+    @MaNV CHAR(10),
+    @SDT Char(15)
+AS
+BEGIN 
+    UPDATE [dbo].[NhanVien_SDT]
+    SET [SDT] =@SDT 
+    WHERE [MaNV] = @MaNV 
+END
+
+--Xóa 
+CREATE PROCEDURE XoaNV_SDT
+    @MaNV CHAR(10)
+AS
+BEGIN 
+    DELETE FROM [dbo].[NhanVien_SDT]
+    WHERE [MaNV] = @MaNV
+END
+
+--Lấy Thông tin 
+CREATE PROCEDURE LayTTNV_SDT
+    @MaNV CHAR(10)
+AS
+BEGIN
+    SELECT * FROM [dbo].[NhanVien_SDT]
+    WHERE MaNV = @MaNV
+END
+
+
+--Bảng nhà cung cấp
+-- Thêm
+CREATE PROCEDURE ThemNhaCungCap
+    @MaNCC CHAR(10),
+    @TenNCC NVARCHAR(50),
+    @DiaChi NVARCHAR(70),
+    @SDT CHAR(12)
+AS
+BEGIN
+    INSERT INTO NhaCungCap (MaNCC, TenNCC, SDT, DiaChi)
+    VALUES (@MaNCC, @TenNCC, @SDT, @DiaChi)
+END
+
+--Sửa
+CREATE PROCEDURE SuaNhaCungCap
+    @MaNCC CHAR(10),
+    @TenNCC NVARCHAR(50),
+    @DiaChi NVARCHAR(70),
+    @SDT CHAR(12)
+AS
+BEGIN
+    UPDATE NhaCungCap
+    SET TenNCC = @TenNCC, SDT = @SDT, DiaChi = @DiaChi
+    WHERE MaNCC = @MaNCC
+END
+
+-- Xóa
+CREATE PROCEDURE XoaNhaCungCap
+    @MaNCC CHAR(10)
+AS
+BEGIN
+    DELETE FROM NhaCungCap
+    WHERE MaNCC = @MaNCC
+END
+
+-- Lấy thông tin 
+CREATE PROCEDURE LayTTNhaCungCap
+    @MaNCC CHAR(10)
+AS
+BEGIN
+    SELECT * FROM NhaCungCap
+    WHERE MaNCC = @MaNCC
+END
+
+
+--Bảng NguoiGiao
+--Thêm
+CREATE PROCEDURE ThemNguoiGiao
+    @MaNG CHAR(10),
+    @TenNG NVARCHAR(100),
+    @SDT VARCHAR(12),
+    @MaNCC CHAR(10)
+AS
+BEGIN
+    INSERT INTO NguoiGiao (MaNG, TenNG, SDT, MaNCC)
+    VALUES (@MaNG, @TenNG, @SDT, @MaNCC)
+END
+
+-- Sửa
+CREATE PROCEDURE SuaNguoiGiao
+    @MaNG CHAR(10),
+    @TenNG NVARCHAR(50),
+    @SDT VARCHAR(12),
+    @MaNCC CHAR(10)
+AS
+BEGIN
+    UPDATE NguoiGiao
+    SET TenNG = @TenNG, SDT = @SDT, MaNCC = @MaNCC
+    WHERE MaNG = @MaNG
+END
+
+--Xóa
+CREATE PROCEDURE XoaNguoiGiao
+    @MaNG CHAR(10)
+AS
+BEGIN
+    DELETE FROM NguoiGiao
+    WHERE MaNG = @MaNG
+END
+Lấy thông tin NguoiGiao
+sql
+Sao chép mã
+CREATE PROCEDURE sp_GetNguoiGiao
+    @MaNG CHAR(10)
+AS
+BEGIN
+    SELECT * FROM NguoiGiao
+    WHERE MaNG = @MaNG;
+END
+
+
+--Bảng DonViNhan
+--Thêm 
+CREATE PROCEDURE ThemDonViNhan
+    @MaDVN CHAR(10),
+    @TenDVN NVARCHAR(50),
+    @DiaChi NVARCHAR(70),
+    @SDT CHAR(12)
+AS
+BEGIN
+    INSERT INTO DonViNhan (MaDVN, TenDVN, DiaChi, SDT)
+    VALUES (@MaDVN, @TenDVN, @DiaChi, @SDT);
+END
+
+--Sửa
+CREATE PROCEDURE SuaDonViNhan
+    @MaDVN CHAR(10),
+    @TenDVN NVARCHAR(50),
+    @DiaChi NVARCHAR(70),
+    @SDT CHAR(12)
+AS
+BEGIN
+    UPDATE DonViNhan
+    SET TenDVN = @TenDVN, DiaChi = @DiaChi, SDT = @SDT
+    WHERE MaDVN = @MaDVN
+END
+
+--Xóa
+CREATE PROCEDURE XoaDonViNhan
+    @MaDVN CHAR(10)
+AS
+BEGIN
+    DELETE 
+    FROM DonViNhan
+    WHERE MaDVN = @MaDVN
+END
+
+--Lấy thông tin
+CREATE PROCEDURE sp_GetDonViNhan
+    @MaDVN CHAR(10)
+AS
+BEGIN
+    SELECT * 
+    FROM DonViNhan
+    WHERE MaDVN = @MaDVN
+END
+
+
+--Bảng NguoiNhan
+--Thêm
+CREATE PROCEDURE ThemNguoiNhan
+    @MaNN CHAR(10),
+    @TenNN NVARCHAR(50),
+    @SDT CHAR(12),
+    @MaDVN CHAR(10)
+AS
+BEGIN
+    INSERT INTO NguoiNhan (MaNN, TenNN, SDT, MaDVN)
+    VALUES (@MaNN, @TenNN, @SDT, @MaDVN)
+END
+
+--Sửa
+CREATE PROCEDURE SuaNguoiNhan
+    @MaNN CHAR(10),
+    @TenNN NVARCHAR(50),
+    @SDT CHAR(12),
+    @MaDVN CHAR(10)
+AS
+BEGIN
+    UPDATE NguoiNhan
+    SET TenNN = @TenNN, SDT = @SDT, MaDVN = @MaDVN
+    WHERE MaNN = @MaNN
+END
+
+--Xóa
+CREATE PROCEDURE XoaNguoiNhan
+    @MaNN CHAR(10)
+AS
+BEGIN
+    DELETE FROM NguoiNhan
+    WHERE [MaNN] = @MaNN
+END 
+
+--Lấy thông tin 
+CREATE PROCEDURE LayTTNguoiNhan
+    @MaNN CHAR(10)
+AS
+BEGIN
+    SELECT * FROM NguoiNhan
+    WHERE MaNN = @MaNN
+END
+
+--Bảng KHO
+--Thêm
+CREATE PROCEDURE Kho
+    @MaKho CHAR(10),
+    @TenKho NVARCHAR(100),
+    @DiaDiem NVARCHAR(200)
+AS
+BEGIN
+    INSERT INTO Kho (MaKho, TenKho,DiaDiem)
+    VALUES (@MaKho, @TenKho,@DiaDiem) 
+END
+
+--Sửa
+CREATE PROCEDURE SuaKHO
+    @MaKho CHAR(10),
+    @TenKho NVARCHAR(100),
+    @DiaDiem NVARCHAR(200)
+AS
+BEGIN
+    UPDATE Kho
+    SET MaKho = @MaKho, TenKho = @TenKho, DiaDiem =@DiaDiem 
+    WHERE MaKho = @MaKho
+END
+
+--Xóa
+CREATE PROCEDURE XoaKHO
+    @MaKho CHAR(10)
+AS
+BEGIN
+    DELETE FROM Kho
+    WHERE MaKho = @MaKho
+END
+
+
+--Lấy thông tin 
+CREATE PROCEDURE LayTTKho
+    @MaKho CHAR(10)
+AS
+BEGIN
+    SELECT * FROM Kho
+    WHERE MaKho = @MaKho;
+END
+
+--Bảng TonKho
+--Thêm
+CREATE PROCEDURE ThemTonKho
+    @MaVT CHAR(10),
+    @NamThang DATE,
+    @SoLuongTon INT,
+    @MaKho CHAR(10)
+AS
+BEGIN
+    INSERT INTO TonKho ([MaVT],[NamThang],[SoLuongTon],[MaKho])
+    VALUES (@MaVT, @NamThang, @SoLuongTon,@MaKho)
+END
+
+--Sửa
+CREATE PROCEDURE SuaTonKho
+    @MaVT CHAR(10),
+    @NamThang DATE,
+    @SoLuongTon INT,
+    @MaKho CHAR(10)
+AS
+BEGIN
+    UPDATE TonKho
+    SET SoLuongTon = @SoLuongTon , [NamThang] = @NamThang , [MaKho] = @MaKho 
+    WHERE MaKho = @MaKho AND MaVT = @MaVT;
+END
+
+--Xóa
+CREATE PROCEDURE XoaTonKho
+    @MaKho CHAR(10),
+    @MaVT CHAR(10)
+AS
+BEGIN
+    DELETE FROM TonKho
+    WHERE MaKho = @MaKho AND MaVT = @MaVT;
+END
+
+--Lấy thông tin TonKho
+CREATE PROCEDURE LayTTTonKho
+    @MaKho CHAR(10),
+    @MaVT CHAR(10)
+AS
+BEGIN
+    SELECT * FROM TonKho
+    WHERE MaKho = @MaKho AND MaVT = @MaVT;
+END
